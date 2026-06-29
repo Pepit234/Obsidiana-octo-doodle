@@ -1,0 +1,18 @@
+-- Script para eliminar texturas y calcomanías en el juego
+local workspace = game:GetService("Workspace")
+
+local function removeTextures(parent)
+    for _, obj in pairs(parent:GetChildren()) do
+        -- Verifica si el objeto es una Textura o una Calcomanía (Decal)
+        if obj:IsA("Texture") or obj:IsA("Decal") then
+            obj:Destroy()
+        else
+            -- Si no es una textura, sigue buscando dentro de este objeto
+            removeTextures(obj)
+        end
+    end
+end
+
+-- Ejecuta la función comenzando desde el Workspace
+removeTextures(workspace)
+print("Se han eliminado todas las texturas y decals del mapa.")
