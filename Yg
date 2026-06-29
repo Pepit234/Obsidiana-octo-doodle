@@ -1,0 +1,179 @@
+-- Servicios necesarios
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+
+local Jugador = Players.LocalPlayer
+local Caracteristica, Humanoide, Raiz
+
+-- 🎨 CREACIÓN DEL INTERFAZ
+local Interfaz = Instance.new("ScreenGui")
+Interfaz.Name = "PanelHacks"
+Interfaz.Parent = Jugador:WaitForChild("PlayerGui")
+Interfaz.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+-- Fondo del panel
+local Panel = Instance.new("Frame")
+Panel.Name = "PanelPrincipal"
+Panel.Size = UDim2.new(0, 220, 0, 260)
+Panel.Position = UDim2.new(0.02, 0, 0.3, 0)
+Panel.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+Panel.BorderSizePixel = 0
+Panel.CornerRadius = UDim.new(0, 8)
+Panel.Parent = Interfaz
+
+-- Barra de arrastre
+local BarraArrastre = Instance.new("Frame")
+BarraArrastre.Size = UDim2.new(1, 0, 0, 35)
+BarraArrastre.BackgroundColor3 = Color3.fromRGB(35, 35, 55)
+BarraArrastre.CornerRadius = UDim.new(0, 8)
+BarraArrastre.Parent = Panel
+
+local Titulo = Instance.new("TextLabel")
+Titulo.Size = UDim2.new(1, 0, 1, 0)
+Titulo.BackgroundTransparency = 1
+Titulo.Text = "PANEL DE CONTROL"
+Titulo.TextColor3 = Color3.new(1,1,1)
+Titulo.Font = Enum.Font.GothamBold
+Titulo.TextSize = 14
+Titulo.Parent = BarraArrastre
+
+-- Función para mover el panel
+local Arrastrando, InicioPos, InicioMousePos
+BarraArrastre.InputBegan:Connect(function(Input)
+    if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+        Arrastrando = true
+        InicioPos = Panel.Position
+        InicioMousePos = Input.Position
+    end
+end)
+UserInputService.InputChanged:Connect(function(Input)
+    if Arrastrando and Input.UserInputType == Enum.UserInputType.MouseMovement then
+        local Delta = Input.Position - InicioMousePos
+        Panel.Position = UDim2.new(InicioPos.X.Scale, InicioPos.X.Offset + Delta.X, InicioPos.Y.Scale, InicioPos.Y.Offset + Delta.Y)
+    end
+end)
+UserInputService.InputEnded:Connect(function(Input)
+    if Input.UserInputType == Enum.UserInputType.MouseButton1 then Arrastrando = false end
+end)
+
+-- 🧩 BOTONES Y CONTROLES
+local PosY = 45
+local function CrearBoton(Nombre, Funcion)
+    local Boton = Instance.new("TextButton")
+    Boton.Name = Nombre
+    Boton.Size = UDim2.new(0.9, 0, 0, 32)
+    Boton.Position = UDim2.new(0.05, 0, 0, PosY)
+    Boton.BackgroundColor3 = Color3.fromRGB(60, 60, 90)
+    Boton.Text = Nombre
+    Boton.TextColor3 = Color3.new(1,1,1)
+    Boton.Font = Enum.Font.Gotham
+    Boton.TextSize = 13
+    Boton.CornerRadius = UDim.new(0, 5)
+    Boton.Parent = Panel
+    Boton.MouseButton1Click:Connect(Funcion)
+    PosY += 38
+    return Boton
+end
+
+-- ✈️ OPCIÓN 1: VOLAR
+local VolarActivo = false
+local BotonVolar = CrearBoton("✈️ Volar (DESACTIVADO)", function()
+    VolarActivo = not VolarActivo
+    BotonVolar.Text = VolarActivo and "✅ Volar (ACTIVADO)" or "✈️ Volar (DESACTIVADO)"
+    BotonVolar.BackgroundColor3 = VolarActivo and Color3.fromRGB(40, 160, 80) or Color3.fromRGB(60,60,90)
+end)
+
+-- 🏃 OPCIÓN 2: VELOCIDAD
+local VelocidadValor = 50
+local TextoVelocidad = Instance.new("TextLabel")
+TextoVelocidad.Size = UDim2.new(0.9, 0, 0, 22)
+TextoVelocidad.Position = UDim2.new(0.05, 0, 0, PosY)
+TextoVelocidad.BackgroundTransparency = 1
+TextoVelocidad.Text = "Velocidad: "..VelocidadValor
+TextoVelocidad.TextColor3 = Color3.new(1,1,1)
+TextoVelocidad.Font = Enum.Font.Gotham
+TextoVelocidad.TextSize = 12
+TextoVelocidad.Parent = Panel
+PosY += 25
+
+local ContenedorBotonesVel = Instance.new("Frame")
+ContenedorBotonesVel.Size = UDim2.new(0.9, 0, 0, 30)
+ContenedorBotonesVel.Position = UDim2.new(0.05, 0, 0, PosY)
+ContenedorBotonesVel.BackgroundTransparency = 1
+ContenedorBotonesVel.Parent = Panel
+
+local BotonMenos = Instance.new("TextButton")
+BotonMenos.Size = UDim2.new(0.48,0,1,0)
+BotonMenos.BackgroundColor3 = Color3.fromRGB(180,70,70)
+BotonMenos.Text = "➖ Reducir"
+BotonMenos.TextColor3 = Color3.new(1,1,1)
+BotonMenos.Font = Enum.Font.GothamBold
+BotonMenos.TextSize = 12
+BotonMenos.CornerRadius = UDim.new(0,4)
+BotonMenos.Parent = ContenedorBotonesVel
+BotonMenos.MouseButton1Click:Connect(function()
+    VelocidadValor = math.max(10, VelocidadValor - 10)
+    TextoVelocidad.Text = "Velocidad: "..VelocidadValor
+end)
+
+local BotonMas = BotonMenos:Clone()
+BotonMas.Position = UDim2.new(0.52,0,0,0)
+BotonMas.BackgroundColor3 = Color3.fromRGB(40,140,80)
+BotonMas.Text = "➕ Aumentar"
+BotonMas.Parent = ContenedorBotonesVel
+BotonMas.MouseButton1Click:Connect(function()
+    VelocidadValor = math.min(500, VelocidadValor + 10)
+    TextoVelocidad.Text = "Velocidad: "..VelocidadValor
+end)
+PosY += 38
+
+-- 🧱 OPCIÓN 3: ATRAVESAR PAREDES
+local ParedesActivo = false
+local BotonParedes = CrearBoton("🧱 Atravesar paredes (DESACT)", function()
+    ParedesActivo = not ParedesActivo
+    BotonParedes.Text = ParedesActivo and "✅ Atravesar paredes (ACT)" or "🧱 Atravesar paredes (DESACT)"
+    BotonParedes.BackgroundColor3 = ParedesActivo and Color3.fromRGB(40, 160, 80) or Color3.fromRGB(60,60,90)
+end)
+
+-- ⚙️ ACTUALIZACIÓN CONTINUA
+RunService.RenderStepped:Connect(function()
+    -- Obtener personaje
+    Caracteristica = Jugador.Character
+    if not Caracteristica then return end
+    Humanoide = Caracteristica:FindFirstChildWhichIsA("Humanoid")
+    Raiz = Caracteristica:FindFirstChild("HumanoidRootPart")
+    if not Humanoide or not Raiz then return end
+
+    -- Aplicar velocidad normal
+    Humanoide.WalkSpeed = VelocidadValor
+
+    -- ✈️ SISTEMA DE VUELO
+    if VolarActivo then
+        Humanoide.PlatformStand = true
+        local Camara = workspace.CurrentCamera
+        local Direccion = Vector3.zero
+        if UserInputService:IsKeyDown(Enum.KeyCode.W) then Direccion += Camara.CFrame.LookVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.S) then Direccion -= Camara.CFrame.LookVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.A) then Direccion -= Camara.CFrame.RightVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.D) then Direccion += Camara.CFrame.RightVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.Space) then Direccion += Vector3.yAxis end
+        if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then Direccion -= Vector3.yAxis end
+        Direccion = Direccion * VelocidadValor
+        Raiz.Velocity = Direccion
+    else
+        Humanoide.PlatformStand = false
+    end
+
+    -- 🧱 ATRAVESAR PAREDES
+    if ParedesActivo then
+        for _, Parte in pairs(Caracteristica:GetDescendants()) do
+            if Parte:IsA("BasePart") then Parte.CanCollide = false end
+        end
+    else
+        for _, Parte in pairs(Caracteristica:GetDescendants()) do
+            if Parte:IsA("BasePart") then Parte.CanCollide = true end
+        end
+    end
+end)
