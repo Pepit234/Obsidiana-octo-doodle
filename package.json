@@ -1,0 +1,13 @@
+{
+  "name": "minecraft-bedrock-bot",
+  "version": "1.0.0",
+  "description": "Bot básico para servidores de Minecraft Bedrock usando bedrock-protocol",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "bedrock-protocol": "^3.32.0"
+  },
+  "license": "MIT"
+}
