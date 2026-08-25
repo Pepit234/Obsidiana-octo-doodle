@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  redroid:
+    image: redroid/redroid:13.0.0-latest
+    container_name: cloud-phone
+    privileged: true
+    restart: unless-stopped
+    ports:
+      - "5555:5555"   # ADB
+    volumes:
+      - ./data:/data
+    devices:
+      - /dev/dri:/dev/dri   # GPU (solo si el VPS tiene GPU)
+    command:
+      - androidboot.redroid_gpu_mode=guest
+      - androidboot.redroid_width=1080
+      - androidboot.redroid_height=1920
+      - androidboot.redroid_fps=120
+
+  novnc:
+    image: theasp/novnc:latest
+    container_name: cloud-phone-view
+    restart: unless-stopped
+    environment:
+      - DISPLAY_WIDTH=1080
+      - DISPLAY_HEIGHT=1920
+    ports:
+      - "8080:8080"   # Acceso web al celular
+    depends_on:
+      - redroid
